@@ -1,67 +1,60 @@
 ---
 title: "Create Job"
-api: "POST https://api.booper.dev/api/jobs"
-description: "This endpoint creates a new user"
+api: "POST https://scheduler.booper.dev/api/jobs"
+description: "This endpoint creates a new job"
 ---
 
 ### Body
 
-<ParamField body="current_token" type="string">
-  This is the current user group token you have for the user group that you want
-  to rotate.
+<ParamField body="method" type="enum">
+  The HTTP method to use. One of `get`, `post`, `put`, `patch`, `delete`.
 </ParamField>
 
-### Response
+<ParamField body="url" type="string">
+  The URL to send the HTTP request to. (Must use https)
+</ParamField>
 
-<ResponseField name="success" type="number">
-  Indicates whether the call was successful. 1 if successful, 0 if not.
-</ResponseField>
+<ParamField body="query" type="JSON | null">
+  Optional query parameters to pass through to the request.
+</ParamField>
 
-<ResponseField name="user_group" type="object">
+<ParamField body="body" type="JSON | null">
+  Optional request body to pass through to the request.
+</ParamField>
 
-The contents of the user group
+<ParamField body="headers" type="JSON | null">
+  Optional request headers to pass through to the request.
+</ParamField>
 
-<Expandable title="Toggle object">
+<ParamField body="schedule_in" type="number | [number, string] | null">
+  How long to wait before executing the request.
+</ParamField>
 
-<ResponseField name="team_id" type="number">
-  This is the internal ID for this user group. You don't need to record this
-  information, since you will not need to use it.
-</ResponseField>
+<ParamField body="repeat_every" type="number | [number, string] | null">
+  Setting this field will put the job on a recurring schedule.
+</ParamField>
 
-<ResponseField name="token" type="string">
-  This is the user group token (userGroupToken or USER_GROUP_TOKEN) that will be
-  used to identify which user group is viewing the dashboard. You should save
-  this on your end to use when rendering an embedded dashboard.
-</ResponseField>
+### Headers
 
-<ResponseField name="name" type="string">
-  This is the name of the user group provided in the request body.
-</ResponseField>
-
-<ResponseField name="provided_id" type="string">
-  This is the user_group_id provided in the request body.
-</ResponseField>
-
-<ResponseField name="api_environment_tag" type="JSON or null">
-  This is the environment tag of the user group. Possible values are 'Customer'
-  and 'Testing'. User group id's must be unique to each environment, so you can
-  not create multiple user groups with with same id. If you have a production
-  customer and a test user group with the same id, you will be required to label
-  one as 'Customer' and another as 'Testing'
-</ResponseField>
-
-</Expandable>
-
-</ResponseField>
+<ParamField
+  header="Authorization"
+  type="string"
+  initialValue="Bearer sk_opKm2rU3q547qO1L8s3PLmfOO_uGZ3cNEO_p7O5S32Q"
+>
+  API key
+</ParamField>
 
 <RequestExample>
 
 ```bash Example Request
-curl --location --request POST 'https://api.booper.dev/api/user' \
+curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
 --header 'Content-Type: application/json' \
---header 'Authorization: Token <token>' \
+--header 'Authorization: Bearer sk_opKm2rU3q547qO1L8s3PLmfOO_uGZ3cNEO_p7O5S32Q' \
 --data-raw '{
-    "current_token": ""
+    "method": "post",
+    "url": "https://scheduler.booper.dev/api/broadcast",
+    "body": {"content": "Testing 123", "channel": "discord"},
+    "schedule_in": [30, "seconds"]
 }'
 ```
 
@@ -71,12 +64,16 @@ curl --location --request POST 'https://api.booper.dev/api/user' \
 
 ```json Response
 {
-  "success": 1,
-  "user_group": {
-    "team_id": 3,
-    "token": "<user_group_token_to_auth_dashboard>",
-    "name": "Example 1",
-    "provided_id": "example_1"
+  "data": {
+    "attempted_at": null,
+    "cancelled_at": null,
+    "completed_at": null,
+    "discarded_at": null,
+    "has_confict": false,
+    "id": 29255,
+    "inserted_at": null,
+    "scheduled_at": "2023-09-01T19:37:05.351520Z",
+    "state": "scheduled"
   }
 }
 ```

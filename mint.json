@@ -65,17 +65,33 @@
       "pages": ["api-reference/authentication"]
     },
     {
-      "group": "Users",
+      "group": "Jobs",
       "pages": [
-        "api-reference/users/get",
-        "api-reference/users/create",
-        "api-reference/users/update",
-        "api-reference/users/delete"
+        "api-reference/jobs/list",
+        "api-reference/jobs/create",
+        "api-reference/jobs/get",
+        "api-reference/jobs/cancel"
       ]
     },
     {
-      "group": "Jobs",
-      "pages": ["api-reference/jobs/get", "api-reference/jobs/create"]
+      "group": "Schedules",
+      "pages": [
+        "api-reference/schedules/list",
+        "api-reference/schedules/get",
+        "api-reference/schedules/delete"
+      ]
+    },
+    {
+      "group": "Logs",
+      "pages": ["api-reference/logs/list"]
+    },
+    {
+      "group": "Miscellaneous",
+      "pages": [
+        "api-reference/misc/ping",
+        "api-reference/misc/echo",
+        "api-reference/misc/broadcast"
+      ]
     }
   ],
   "footerSocials": {

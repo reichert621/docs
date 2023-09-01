@@ -1,0 +1,29 @@
+---
+title: "Ping"
+api: "GET https://scheduler.booper.dev/api/ping"
+description: "This endpoint verifies that the server is up"
+---
+
+### Response
+
+<ResponseField name="message" type="string">
+  Responds with "Pong!" if the server is up.
+</ResponseField>
+
+<RequestExample>
+
+```bash Example Request
+curl 'https://scheduler.booper.dev/api/ping'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Response
+{
+  "message": "Pong"
+}
+```
+
+</ResponseExample>

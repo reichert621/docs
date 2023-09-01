@@ -1,0 +1,72 @@
+---
+title: "List Schedules"
+api: "GET https://scheduler.booper.dev/api/schedules"
+description: "This endpoint retrieves job schedules."
+---
+
+### Query
+
+<ParamField query="limit" type="number" default="10">
+  Limits the number of schedules returned in the query. (Max 100)
+</ParamField>
+
+<ParamField query="offset" type="number" default="0">
+  Offsets the logs returned in the query for pagination.
+</ParamField>
+
+<ParamField query="order_by" type="[string, 'asc' | 'desc']">
+  The field to order by. Defaults to most recently created.
+</ParamField>
+
+### Headers
+
+<ParamField
+  header="Authorization"
+  type="string"
+  initialValue="Bearer sk_opKm2rU3q547qO1L8s3PLmfOO_uGZ3cNEO_p7O5S32Q"
+>
+  API key
+</ParamField>
+
+<RequestExample>
+
+```bash Example Request
+curl 'https://scheduler.booper.dev/api/schedules' \
+--header 'Authorization: Bearer sk_opKm2rU3q547qO1L8s3PLmfOO_uGZ3cNEO_p7O5S32Q'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Response
+{
+  "data": [
+    {
+      "id": "67a64bd8-f4d7-43bf-9ce5-6ba12f03665e",
+      "name": null,
+      "description": null,
+      "inserted_at": "2023-08-27T02:11:19",
+      "started_at": null,
+      "disabled_at": "2023-08-27T23:27:23Z",
+      "user_id": "bd2aa099-6eb7-4dbb-9178-32141def1355"
+      "frequency": {
+        "repeat_every": [2, "minutes"]
+      },
+      "args": {
+        "body": {
+          "channel": "toast",
+          "content": "Hello world!"
+        },
+        "headers": {},
+        "method": "post",
+        "repeat_every": [2, "minutes"],
+        "schedule_in": [30, "seconds"],
+        "url": "https://scheduler.booper.dev/api/broadcast"
+      }
+    }
+  ]
+}
+```
+
+</ResponseExample>

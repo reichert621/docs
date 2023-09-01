@@ -1,0 +1,51 @@
+---
+title: "Broadcast"
+api: "POST https://scheduler.booper.dev/api/broadcast"
+description: "This endpoint responds with whatever arguments were passed in"
+---
+
+### Body
+
+<ParamField body="content" type="string">
+  The content of the message to send.
+</ParamField>
+
+<ParamField body="author" type="string">
+  The name of the person sending the message.
+</ParamField>
+
+<ParamField body="channel" type="string">
+  The channel to send the message to.
+</ParamField>
+
+### Response
+
+<ResponseField name="success" type="number">
+  Indicates whether the call was successful. 1 if successful, 0 if not.
+</ResponseField>
+
+<RequestExample>
+
+```bash Example Request
+curl --location --request POST 'https://scheduler.booper.dev/api/broadcast' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "author": "alex",
+    "content": "sup",
+    "channel": "discord"
+}'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Response
+{
+  "author": "alex",
+  "channel": "discord",
+  "content": "sup"
+}
+```
+
+</ResponseExample>

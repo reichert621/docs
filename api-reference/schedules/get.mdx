@@ -1,0 +1,62 @@
+---
+title: "Get Schedule"
+api: "GET https://scheduler.booper.dev/api/schedules/{schedule_id}"
+description: "This endpoint retrieves a user schedule"
+---
+
+### Path
+
+<ParamField path="schedule_id" type="string" required>
+  The schedule ID.
+</ParamField>
+
+### Headers
+
+<ParamField
+  header="Authorization"
+  type="string"
+  initialValue="Bearer sk_opKm2rU3q547qO1L8s3PLmfOO_uGZ3cNEO_p7O5S32Q"
+>
+  API key
+</ParamField>
+
+<RequestExample>
+
+```bash Example Request
+curl 'https://scheduler.booper.dev/api/schedules/99fe99fe-2b31-4dd2-a52a-67d25b66a609' \
+--header 'Authorization: Bearer sk_opKm2rU3q547qO1L8s3PLmfOO_uGZ3cNEO_p7O5S32Q'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Response
+{
+  "data": {
+    "id": "99fe99fe-2b31-4dd2-a52a-67d25b66a609",
+    "name": null,
+    "description": null,
+    "inserted_at": "2023-08-27T02:11:19",
+    "started_at": null,
+    "disabled_at": "2023-08-27T23:27:23Z",
+    "user_id": "bd2aa099-6eb7-4dbb-9178-32141def1355"
+    "frequency": {
+      "repeat_every": [2, "minutes"]
+    },
+    "args": {
+      "body": {
+        "channel": "toast",
+        "content": "Hello world!"
+      },
+      "headers": {},
+      "method": "post",
+      "repeat_every": [2, "minutes"],
+      "schedule_in": [30, "seconds"],
+      "url": "https://scheduler.booper.dev/api/broadcast"
+    }
+  }
+}
+```
+
+</ResponseExample>

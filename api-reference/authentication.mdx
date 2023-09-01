@@ -1,22 +1,22 @@
 ---
 title: "Authentication"
-description: "Example overview page before API endpoints"
+description: "Understanding authorization with your API key"
 ---
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas et eros iaculis tortor dapibus cursus. Curabitur quis sapien nec tortor dictum gravida.
+To authenticate you need to add an **Authorization** header with the contents of the header being `Bearer sk_123456789` where `sk_123456789` is your [API Key](https://www.booper.dev/api-keys).
 
-```bash
-'Authorization': 'Token <team_token>'
+```
+'Authorization': 'Bearer <API key>'
 ```
 
-## API Tokens
+## API keys
 
-Nullam convallis mauris at nunc consectetur, ac imperdiet leo rutrum. Maecenas cursus purus a pellentesque blandit. Pellentesque vitae lacinia libero, non mollis metus.
+You can get a private API key by signing up for a [free account](https://www.booper.dev/register).
 
-Nam id ullamcorper urna, at rutrum enim. [Maecenas vulputate](/introduction) vehicula libero, vitae sodales augue pretium nec. Quisque a magna tempor, semper risus vel, fermentum nunc. Pellentesque fermentum interdum ex, eu convallis massa blandit sed. Aliquam bibendum ipsum vel laoreet auctor.
+When using your API key, be sure to store it in an environment variable, and avoid checking it into your source control.
 
-### Permissions
+### Public API key
 
-Etiam lobortis ut odio ut fermentum. Nunc odio velit, sollicitudin at consectetur id, tristique eget turpis. Aliquam at risus vitae dolor sodales venenatis. In hac habitasse platea dictumst.
+If you just want to try things out without signing up, you can use our [public API key](https://www.booper.dev/g/home).
 
-Aenean consequat diam eget mollis fermentum. [Quisque eu malesuada](/introduction) felis, non dignissim libero.
+Note that any jobs you create with the public API key will be viewable and editable by anyone, so be sure not to use it for anything private or important.
