@@ -16,8 +16,8 @@
   },
   "topbarLinks": [
     {
-      "name": "Support",
-      "url": "mailto:reichertjalex@gmail.com"
+      "name": "Community",
+      "url": "https://discord.gg/pD7pnd2bUH"
     }
   ],
   "topbarCtaButton": {
@@ -27,19 +27,19 @@
   "tabs": [],
   "anchors": [
     {
-      "name": "Documentation",
-      "icon": "book-open-cover",
-      "url": "introduction"
-    },
-    {
-      "name": "API Reference",
-      "icon": "code",
-      "url": "api-reference"
+      "name": "Dashboard",
+      "icon": "house",
+      "url": "https://booper.dev/home"
     },
     {
       "name": "Community",
       "icon": "discord",
       "url": "https://discord.gg/pD7pnd2bUH"
+    },
+    {
+      "name": "Github",
+      "icon": "github",
+      "url": "https://github.com/booper-dev/scheduler"
     }
   ],
   "navigation": [
@@ -95,9 +95,9 @@
     }
   ],
   "footerSocials": {
-    "twitter": "https://twitter.com/reichertjalex",
-    "github": "https://github.com/booper-dev",
-    "linkedin": "https://www.linkedin.com/in/alexreichert/"
+    "github": "https://github.com/booper-dev/scheduler",
+    "discord": "https://discord.gg/pD7pnd2bUH",
+    "twitter": "https://twitter.com/reichertjalex"
   },
   "modeToggle": {
     "default": "dark",
