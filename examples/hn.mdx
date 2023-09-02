@@ -9,15 +9,15 @@ To set up a job...
 
 ```ts Fetch all top stories from HN
 const fetchStories = async () => {
-  const { data: storyIds } = await axios.get(
+  const storyIds = await fetch(
     `https://hacker-news.firebaseio.com/v0/topstories.json`
-  );
+  ).then((r) => r.json());
 
   return Promise.all(
     storyIds.map(async (id: number) => {
-      const { data: story } = await axios.get(
+      const story = await fetch(
         `https://hacker-news.firebaseio.com/v0/item/${id}.json`
-      );
+      ).then((r) => r.json());
 
       return story;
     })
