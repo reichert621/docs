@@ -5,4 +5,22 @@ description: "Get alerted of top HN posts every hour"
 
 ## Overview
 
-TODO
+To set up a job...
+
+```ts Fetch all top stories from HN
+const fetchStories = async () => {
+  const { data: storyIds } = await axios.get(
+    `https://hacker-news.firebaseio.com/v0/topstories.json`
+  );
+
+  return Promise.all(
+    storyIds.map(async (id: number) => {
+      const { data: story } = await axios.get(
+        `https://hacker-news.firebaseio.com/v0/item/${id}.json`
+      );
+
+      return story;
+    })
+  );
+};
+```
