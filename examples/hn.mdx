@@ -8,16 +8,18 @@ description: "Get alerted of top HN posts every hour"
 To set up a job...
 
 ```ts Fetch all top stories from HN
+const get = async (url: string) => fetch(url).then((r) => r.json());
+
 const fetchStories = async () => {
-  const storyIds = await fetch(
+  const storyIds = await get(
     `https://hacker-news.firebaseio.com/v0/topstories.json`
-  ).then((r) => r.json());
+  );
 
   return Promise.all(
     storyIds.map(async (id: number) => {
-      const story = await fetch(
+      const story = await get(
         `https://hacker-news.firebaseio.com/v0/item/${id}.json`
-      ).then((r) => r.json());
+      );
 
       return story;
     })

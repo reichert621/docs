@@ -17,7 +17,9 @@ It will do this by scheduling a `POST` request to `https://scheduler.booper.dev/
 
 ### Using cURL
 
-The easiest way to do this is to copy and paste the following cURL request into your terminal:
+The easiest way to do this is to copy and paste the following cURL request into your terminal.
+
+Note that in the request body (in `--data-raw`) we simply define the HTTP `method`, `url`, `body`, and set it to run in 30 seconds with the `schedule_in` parameter:
 
 ```bash
 BOOPER_PUBLIC_API_KEY='sk_opKm2rU3q547qO1L8s3PLmfOO_uGZ3cNEO_p7O5S32Q'
@@ -97,7 +99,9 @@ Let's just create a job that pings the Booper API every 5 minutes after its init
 
 ### Using cURL
 
-Once again, the easiest way to do this is to copy and paste the following cURL request into your terminal. The main difference with the section above is that we now add the `repeat_every` field set to `[5, 'minutes']`:
+Once again, the easiest way to do this is to copy and paste the following cURL request into your terminal.
+
+The main difference with the section above is that we now add the `repeat_every` field set to `[5, 'minutes']`:
 
 ```bash
 BOOPER_PUBLIC_API_KEY='sk_opKm2rU3q547qO1L8s3PLmfOO_uGZ3cNEO_p7O5S32Q'

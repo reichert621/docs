@@ -5,4 +5,25 @@ description: "Set up a daily standup prompt on weekdays in Discord"
 
 ## Overview
 
-TODO
+We can set up a daily standup in 3 easy steps:
+
+1. Get your API key
+2. Get your Discord webhook URL
+3. Run the script below
+
+```bash
+# Make sure your API key is set in the current env
+# BOOPER_API_KEY=sk_...
+
+curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
+--header "Content-Type: application/json" \
+--header "Authorization: Bearer $BOOPER_API_KEY" \
+--data-raw '{
+    "method": "post",
+    "url": "https://discord.com/api/webhooks/1147917553176412232/A6_FKaVh2Bxme7uj5wDnh40k-cOedEswWaWve0PJZKzAnjzUoa-2PYyBKm9D7SXq1Cyk",
+    "body": {
+      "content": "Time for standup! What are you working on today?"
+    },
+    "cron": "*/5 * * * *"
+}'
+```
