@@ -5,24 +5,125 @@ description: "Get alerted of top HN posts every hour"
 
 ## Overview
 
-To set up a job...
+Let's set up a script that alerts us every hour of new posts on the front page of Hacker News that have exceeded a certain point threshold.
 
-```ts Fetch all top stories from HN
+Here's how we'll tackle it:
+
+1. Write the script to fetch all front page posts with a minimum upvote score
+2. Set up a notification to be sent to Discord whenever a new post is found
+3. Configure the schedule so that it "remembers" which posts have already been sent through
+
+### Fetching top stories from HN
+
+We'll use the [Hacker News API](https://github.com/HackerNews/API) endpoints to fetch the top page stories. Here's what that function might look like:
+
+```ts
 const get = async (url: string) => fetch(url).then((r) => r.json());
 
-const fetchStories = async () => {
+const fetchStories = async ({
+  pages = 1,
+  min = 100,
+  exclude = [],
+}: {
+  pages?: number;
+  min?: number;
+  exclude?: number[];
+}) => {
   const storyIds = await get(
     `https://hacker-news.firebaseio.com/v0/topstories.json`
   );
 
   return Promise.all(
-    storyIds.map(async (id: number) => {
-      const story = await get(
-        `https://hacker-news.firebaseio.com/v0/item/${id}.json`
-      );
+    storyIds
+      // Filter out posts we've already seen
+      .filter((id: number) => !exclude.includes(id))
+      // Limit to the first page (30 posts per page)
+      .slice(0, pages * 30)
+      .map(async (id: number) => {
+        const story = await get(
+          `https://hacker-news.firebaseio.com/v0/item/${id}.json`
+        );
 
-      return story;
-    })
+        return story;
+      })
   );
 };
 ```
+
+It's basically an N+1 query, but no big deal. If we limit the results to the first page (i.e. the first 30 posts), the request is generally fast enough.
+
+Here's what the [output](https://www.booper.dev/api/examples/hn?pages=1&min=200) looks like:
+
+```json
+{
+  "stories": [
+    {
+      "title": "Get a cable modem, go to jail (1999)",
+      "url": "http://telecom.csail.mit.edu/judy-sammel.html",
+      "score": 447
+    },
+    {
+      "title": "Writing a C compiler in 500 lines of Python",
+      "url": "https://vgel.me/posts/c500/",
+      "score": 432
+    },
+    {
+      "title": "Emacs Bedrock: A minimal Emacs starter kit",
+      "url": "https://sr.ht/~ashton314/emacs-bedrock/",
+      "score": 214
+    }
+    // ...
+  ]
+}
+```
+
+### Triggering a Discord alert when new posts are found
+
+First, let's define a function that sends an alert to Discord via webhook URL:
+
+```ts
+const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
+
+const notify = async (content: string) => {
+  return fetch(DISCORD_WEBHOOK_URL, {
+    headers: { "content-type": "application/json" },
+    method: "POST",
+    body: JSON.stringify({ content }),
+  });
+};
+```
+
+Now, the simplest thing we can do is just send an alert to Discord whenever we find posts that meet the minimum score requirement set in the request body.
+
+Here we handle that in a [NextJS API endpoint](https://nextjs.org/docs/pages/building-your-application/routing/api-routes):
+
+```ts
+// pages/api/examples/hn.ts
+
+const format = (results) => {
+  return results
+    .map((p) => `[${p.score} points] [${p.title}](${p.url})`)
+    .join("\n");
+};
+
+export default async function handler(req, res) {
+  const { min = 100, pages = 1 } = req.body;
+  const stories = await fetchStories({ pages });
+  // After we fetch the stories, we filter out the ones that
+  // don't have the minimum score specified in the request body
+  const results = stories.filter((s) => s.score >= min);
+
+  if (results.length > 0) {
+    // Send notification to Discord
+    await notify(format(results));
+  }
+
+  return res.status(200).json({ results });
+}
+```
+
+This is fine if we run the script every hour or two, and don't mind seeing repeated links. But what if we want to avoid sending duplicates?
+
+### Keeping track of alert history
+
+TODO

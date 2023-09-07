@@ -5,25 +5,76 @@ description: "Set up a daily standup prompt on weekdays in Discord"
 
 ## Overview
 
-We can set up a daily standup in 3 easy steps:
+We can set up a daily standup alert in 3 easy steps:
 
-1. Get your API key
-2. Get your Discord webhook URL
-3. Run the script below
+1. Get a [Discord webhook URL](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks)
+2. Use your [personal API key](https://www.booper.dev/api-keys)
+3. Schedule a recurring job
+
+### 1. Getting a Discord webhook URL
+
+If you want to try this out but you don't have a [Discord](https://discord.com/) server, you can [set one up](https://support.discord.com/hc/en-us/articles/204849977-How-do-I-create-a-server-) easily for free.
+
+If you already have a Discord server, [follow these instructions](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks) to get your webhook URL.
+
+If you want to test this out quickly using the [Booper public Discord server](https://discord.gg/pD7pnd2bUH), you can use this webhook URL:
+
+```
+https://discord.com/api/webhooks/1147917553176412232/A6_FKaVh2Bxme7uj5wDnh40k-cOedEswWaWve0PJZKzAnjzUoa-2PYyBKm9D7SXq1Cyk
+```
+
+To see it in action, run this in your terminal and then check the [#standup](https://discord.com/channels/1107053251498627222/1147917515075375144) channel.
 
 ```bash
-# Make sure your API key is set in the current env
+curl -X POST \
+'https://discord.com/api/webhooks/1147917553176412232/A6_FKaVh2Bxme7uj5wDnh40k-cOedEswWaWve0PJZKzAnjzUoa-2PYyBKm9D7SXq1Cyk' \
+--header "Content-Type: application/json" \
+--data-raw '{
+    "content": "Hello from the example page!"
+}'
+```
+
+### 2. Using your API key
+
+You can get your personal API key [here in the dashboard](https://www.booper.dev/api-keys).
+
+If you want to just test this out quickly, you can use our [public API key](https://www.booper.dev/g/home).
+
+### 3. Scheduling your job
+
+To set up your standup alert job on a recurring schedule, we're going to use the `cron` option. The `cron` field allows us to set a job on a schedule using a [cron expression](https://crontab.guru/).
+
+For example, if we wanted the alert to occur every weekday (Monday through Friday) at 9am, we would use the following cron expression: [`0 9 * * 1-5`](https://crontab.guru/#0_9_*_*_1-5)
+
+This expression says to run at the `0th minute` of the `9th hour` (i.e. `9:00am`) every `1st to 5th day of the week (Monday through Friday)`.
+
+Assuming you have your `BOOPER_API_KEY` and `DISCORD_WEBHOOK_URL` set in your environment, you can run the script below in your terminal:
+
+```bash
+# This assumes your API key and webhook URL are set in the current env
 # BOOPER_API_KEY=sk_...
+# DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
 
 curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
---header "Content-Type: application/json" \
+--header "Content-Type: application/x-www-form-urlencoded" \
 --header "Authorization: Bearer $BOOPER_API_KEY" \
+--data-raw "method=post" \
+--data-raw "url=$DISCORD_WEBHOOK_URL" \
+--data-raw "body[content]=Time for standup! What are you working on today?" \
+--data-raw "cron=0 9 * * 1-5"
+```
+
+If you're not using environment variables, you can run this script using the public API key and public Discord webhook URL from above:
+
+```bash
+curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
+--header "Content-Type: application/json" \
+--header "Authorization: Bearer sk_opKm2rU3q547qO1L8s3PLmfOO_uGZ3cNEO_p7O5S32Q" \
 --data-raw '{
     "method": "post",
     "url": "https://discord.com/api/webhooks/1147917553176412232/A6_FKaVh2Bxme7uj5wDnh40k-cOedEswWaWve0PJZKzAnjzUoa-2PYyBKm9D7SXq1Cyk",
-    "body": {
-      "content": "Time for standup! What are you working on today?"
-    },
-    "cron": "*/5 * * * *"
+    "body": {"content": "Time for standup! What are you working on today?"},
+    "cron": "0 9 * * 1-5"
 }'
+
 ```
