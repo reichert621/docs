@@ -5,13 +5,12 @@ description: "Set up a daily standup prompt on weekdays in Discord"
 
 ## Overview
 
-We can set up a daily standup alert in 3 easy steps:
+We can set up a daily standup alert in 2 easy steps:
 
-1. Get a [Discord webhook URL](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks)
-2. Use your [personal API key](https://www.booper.dev/api-keys)
-3. Schedule a recurring job
+1. We'll get a [Discord webhook URL](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks).
+2. We'll to use a [cron expression](https://crontab.guru/) to schedule a standup prompt to be sent to Discord every morning at 9am, Monday through Friday.
 
-### 1. Getting a Discord webhook URL
+### Getting a Discord webhook URL
 
 If you want to try this out but you don't have a [Discord](https://discord.com/) server, you can [set one up](https://support.discord.com/hc/en-us/articles/204849977-How-do-I-create-a-server-) easily for free.
 
@@ -32,13 +31,7 @@ curl -X POST \
 --data-raw '{"content": "Hello from the example page!"}'
 ```
 
-### 2. Using your API key
-
-You can get your personal API key [here in the dashboard](https://www.booper.dev/api-keys).
-
-If you want to just test this out quickly, you can use our [public API key](https://www.booper.dev/g/home).
-
-### 3. Scheduling your job
+### Scheduling your job
 
 To set up your standup alert job on a recurring schedule, we're going to use the `cron` option. The `cron` field allows us to set a job on a schedule using a [cron expression](https://crontab.guru/).
 
@@ -48,7 +41,9 @@ This expression says to run at the `0th minute` of the `9th hour` (i.e. `9:00am`
 
 <Info>Note that cron expressions are set in the UTC timezone by default.</Info>
 
-Assuming you have your `BOOPER_API_KEY` and `DISCORD_WEBHOOK_URL` set in your environment, you can run the script below in your terminal:
+Assuming you have your `BOOPER_API_KEY` and `DISCORD_WEBHOOK_URL` set in your environment, you can run the script below in your terminal.
+
+(Get your personal API key [here](https://www.booper.dev/api-keys), or use our [public API key](https://www.booper.dev/g/home) if you just want to test it out quickly.)
 
 ```bash
 # This assumes your API key and webhook URL are set in the current env

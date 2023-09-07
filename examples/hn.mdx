@@ -52,7 +52,8 @@ const fetchStories = async ({
 
 It's basically an N+1 query, but no big deal. If we limit the results to the first page (i.e. the first 30 posts), the request is generally fast enough.
 
-Here's what the [output](https://www.booper.dev/api/examples/hn?pages=1&min=200) looks like:
+<Accordion title="View example output of HN posts" icon="code">
+Here's an example of what the [output](https://www.booper.dev/api/examples/hn?pages=1&min=200) looks like:
 
 ```json
 {
@@ -77,6 +78,8 @@ Here's what the [output](https://www.booper.dev/api/examples/hn?pages=1&min=200)
 }
 ```
 
+</Accordion>
+
 ### Triggering a Discord alert when new posts are found
 
 First, let's define a function that sends an alert to Discord via webhook URL:
@@ -98,7 +101,7 @@ Now, the simplest thing we can do is just send an alert to Discord whenever we f
 Here we handle that in a [NextJS API endpoint](https://nextjs.org/docs/pages/building-your-application/routing/api-routes):
 
 ```ts
-// pages/api/examples/hn.ts
+// pages/api/hn.ts
 
 const format = (results) => {
   return results
@@ -126,4 +129,146 @@ This is fine if we run the script every hour or two, and don't mind seeing repea
 
 ### Keeping track of alert history
 
-TODO
+There are two ways we can keep track of which posts have been sent out already.
+
+When you create a job on a schedule, the scheduler will pass in some [metadata](/link-to-job-metadata) into the body of each request. Included in that metadata is the response from the previous run, which can be seen at `req.body.$previous`.
+
+<Accordion title="Example using the `$previous` metadata" icon="code">
+
+Let's modify the API handler to take advantage of the `$previous` data:
+
+```ts
+export default async function handler(req, res) {
+  const { min = 100, pages = 1 } = req.body;
+  // Add this line! 👇
+  const exclude = req.body.$previous?.sent || [];
+  // And then pass in the `exclude` parameter to exclude
+  // previously sent posts from the results of `fetchStories`
+  const stories = await fetchStories({ pages, exclude });
+  const results = stories.filter((s) => s.score >= min);
+
+  if (results.length > 0) {
+    await notify(format(results));
+  }
+
+  return res.status(200).json({
+    // And modify the response to return all the IDs of sent posts,
+    // including the previously sent posts (from `exclude`) 👇
+    sent: [...exclude, ...results.map((s) => s.id)],
+  });
+}
+```
+
+If we want, we can also clean this up a bit by taking advantage of [dynamic values](/link-to-dynamic-values-in-job-metadata) in our job schedule configuration. When we set the request `body` for our job, we can write it like this:
+
+```json
+{
+  // Set the minimum score requirement to 200 points
+  "min": 200,
+  // Pass in `req.body.$previous?.sent` as `req.body.exclude`
+  "exclude": "$previous.sent"
+}
+```
+
+If we do this, we can change the line above from this:
+
+```ts
+const exclude = req.body.$previous?.sent || [];
+```
+
+To this:
+
+```ts
+const exclude = req.body.exclude || [];
+```
+
+Now, assuming you've deployed your API endpoint to `https://yourdomain.com/api/hn`, you can create your scheduled job by running the following script in your terminal with your `BOOPER_API_KEY` set, and the `url` modified to the appropriate domain:
+
+```bash
+# This assumes your API key is set in the current env
+# BOOPER_API_KEY=sk_...
+
+curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
+--header "Content-Type: application/json" \
+--header "Authorization: Bearer $BOOPER_API_KEY" \
+--data-raw '{
+    "method": "post",
+    "url": "https://yourdomain.com/api/hn",
+    "body": {"min": 200, "exclude": "$previous.sent"},
+    "repeat_every": [1, "hour"]
+}'
+```
+
+</Accordion>
+
+Also included in the metadata is the schedule's `state`, which can be accessed at `req.body.$state` and set or updated in the response.
+
+<Accordion title="Example using the schedule `$state`" icon="code">
+
+Let's modify the API handler to take advantage of `$state`:
+
+```ts
+export default async function handler(req, res) {
+  const { min = 100, pages = 1 } = req.body;
+  // Add this line! 👇
+  const exclude = req.body.$state?.sent || [];
+  // And then pass in the `exclude` parameter to exclude
+  // previously sent posts from the results of `fetchStories`
+  const stories = await fetchStories({ pages, exclude });
+  const results = stories.filter((s) => s.score >= min);
+
+  if (results.length > 0) {
+    await notify(format(results));
+  }
+
+  return res.status(200).json({
+    $set: {
+      sent: [...exclude, ...results.map((s) => s.id)],
+    },
+  });
+}
+```
+
+This may look similar to what we did above when using the `$previous` metadata, but there is one key difference: **while `$previous` data is ephemeral, the schedule's `$state` is stored in the database**. This means that if a schedule is paused and then restarted again, the `$previous` data will be lost, but `$state` will be persisted.
+
+Once again, we can clean this up a bit by taking advantage of [dynamic values](/link-to-dynamic-values-in-job-metadata) in our job schedule configuration. When we set the request `body` for our job, we can write it like this:
+
+```json
+{
+  // Set the minimum score requirement to 200 points
+  "min": 200,
+  // Pass in `req.body.$state?.sent` as `req.body.exclude`
+  "exclude": "$state.sent"
+}
+```
+
+If we do this, we can change the line above from this:
+
+```ts
+const exclude = req.body.$state?.sent || [];
+```
+
+To this:
+
+```ts
+const exclude = req.body.exclude || [];
+```
+
+Now, assuming you've deployed your API endpoint to `https://yourdomain.com/api/hn`, you can create your scheduled job by running the following script in your terminal with your `BOOPER_API_KEY` set, and the `url` modified to the appropriate domain:
+
+```bash
+# This assumes your API key is set in the current env
+# BOOPER_API_KEY=sk_...
+
+curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
+--header "Content-Type: application/json" \
+--header "Authorization: Bearer $BOOPER_API_KEY" \
+--data-raw '{
+    "method": "post",
+    "url": "https://yourdomain.com/api/hn",
+    "body": {"min": 200, "exclude": "$state.sent"},
+    "repeat_every": [1, "hour"]
+}'
+```
+
+</Accordion>
