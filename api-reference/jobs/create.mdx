@@ -6,32 +6,64 @@ description: "This endpoint creates a new job"
 
 ### Body
 
-<ParamField body="method" type="enum">
+<ParamField body="method" type="enum" default="get">
   The HTTP method to use. One of `get`, `post`, `put`, `patch`, `delete`.
 </ParamField>
 
-<ParamField body="url" type="string">
-  The URL to send the HTTP request to. (Must use https)
+<ParamField body="url" type="string" required>
+  The URL to send the HTTP request to. Must use https.
 </ParamField>
 
-<ParamField body="query" type="JSON | null">
+<ParamField body="query" type="JSON">
   Optional query parameters to pass through to the request.
 </ParamField>
 
-<ParamField body="body" type="JSON | null">
+<ParamField body="body" type="JSON">
   Optional request body to pass through to the request.
 </ParamField>
 
-<ParamField body="headers" type="JSON | null">
+<ParamField body="headers" type="JSON">
   Optional request headers to pass through to the request.
 </ParamField>
 
-<ParamField body="schedule_in" type="number | [number, string] | null">
-  How long to wait before executing the request.
+<ParamField body="schedule_in" type="number | [number, string]">
+  How long to wait before executing the request. Set either as a number of
+  seconds, or a tuple such as `[5, "minutes"]`. <br />
+  If you'd rather specify a timestamp at which to run the request, use the `scheduled_at`
+  field instead.
 </ParamField>
 
-<ParamField body="repeat_every" type="number | [number, string] | null">
-  Setting this field will put the job on a recurring schedule.
+<ParamField body="scheduled_at" type="string | number | Date">
+  The timestamp at which to execute the request. Set either as a datetime
+  string, or a unix timestamp. <br />
+  If you want to schedule the request relative to now (e.g. "in 5 mins"), use the
+  `schedule_in` field instead.
+</ParamField>
+
+<ParamField body="repeat_every" type="number | [number, string]">
+  Setting this field will put the job on a recurring schedule. Set as either a
+  number of seconds, or a tuple such as `[5, "minutes"]`
+</ParamField>
+
+<ParamField body="cron" type="string">
+  The cron expression used to set the job on a recurring schedule.
+  <br /> For example, `*/5 * * * *` would run every 5 minutes, `0 9 * * 1-5` runs
+  every Mon-Fri at 9am UTC.
+</ParamField>
+
+<ParamField body="idempotency_key" type="string">
+  A value used to enforce idempotency, or uniqueness. <br />
+  For example, if multiple jobs are scheduled with the same `idempotency_key` before
+  one of them is executed, every job but the first one will be ignored.
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  A callback URL to send the result of the HTTP request to. Must use https.
+</ParamField>
+
+<ParamField body="webhook_url" type="string">
+  A webhook URL to send job events to. Must use https. Job events include:
+  `job.started`, `job.request`, `job.response`, `job.finished`, `job.error`.
 </ParamField>
 
 ### Headers
@@ -65,15 +97,35 @@ curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
 ```json Response
 {
   "data": {
-    "attempted_at": null,
-    "cancelled_at": null,
-    "completed_at": null,
-    "discarded_at": null,
-    "has_confict": false,
-    "id": 29255,
-    "inserted_at": null,
-    "scheduled_at": "2023-09-01T19:37:05.351520Z",
-    "state": "scheduled"
+    "id": "41d7f28b-dfbe-44b8-b716-b91898bb0ce0",
+    "idempotency_key": null,
+    "inserted_at": "2023-09-01T18:25:49",
+    "name": null,
+    "description": null,
+    "user_id": "bd2aa099-6eb7-4dbb-9178-32141def1355",
+    "schedule_id": null,
+    "job_id": 29180,
+    "job": {
+      "attempted_at": null,
+      "cancelled_at": null,
+      "completed_at": null,
+      "discarded_at": null,
+      "has_confict": false,
+      "id": 29180,
+      "inserted_at": "2023-09-01T18:25:49.705161Z",
+      "scheduled_at": "2023-09-01T18:26:19.707539Z",
+      "state": "available"
+    },
+    "args": {
+      "body": {
+        "author": "alex",
+        "content": "Hello world!"
+      },
+      "headers": {},
+      "method": "post",
+      "schedule_in": [30, "seconds"],
+      "url": "https://scheduler.booper.dev/api/channels/discord"
+    }
   }
 }
 ```
