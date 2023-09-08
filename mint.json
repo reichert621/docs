@@ -59,7 +59,6 @@
         }
       ]
     },
-
     {
       "group": "API Reference",
       "pages": ["api-reference/authentication"]

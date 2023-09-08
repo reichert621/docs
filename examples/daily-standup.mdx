@@ -3,12 +3,30 @@ title: "Daily standup in Discord"
 description: "Set up a daily standup prompt on weekdays in Discord"
 ---
 
-## Overview
+### Overview
 
 We can set up a daily standup alert in 2 easy steps:
 
 1. We'll get a [Discord webhook URL](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks).
 2. We'll to use a [cron expression](https://crontab.guru/) to schedule a standup prompt to be sent to Discord every morning at 9am, Monday through Friday.
+
+<Accordion title="Just show me the code">
+
+```bash
+# This assumes your API key and webhook URL are set in the current env:
+# BOOPER_API_KEY=sk_...
+# DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
+
+curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
+--header "Content-Type: application/x-www-form-urlencoded" \
+--header "Authorization: Bearer $BOOPER_API_KEY" \
+--data-raw "method=post" \
+--data-raw "url=$DISCORD_WEBHOOK_URL" \
+--data-raw "body[content]=Time for standup! What are you working on today?" \
+--data-raw "cron=0 9 * * 1-5"
+```
+
+</Accordion>
 
 ### Getting a Discord webhook URL
 
@@ -73,3 +91,7 @@ curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
 }'
 
 ```
+
+(If you run the script above, you can check that it scheduled something on the [jobs page](https://www.booper.dev/g/jobs?q=2PYyBKm9D7SXq1Cyk) of the public dashboard.)
+
+Feel free to adjust the `cron` expression to run more frequently (e.g. `*/5 * * * *` to run every 5 minutes) if you want to test that it's working without waiting until the next morning!
