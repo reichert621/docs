@@ -19,7 +19,9 @@ description: "This endpoint creates a new job"
 </ParamField>
 
 <ParamField body="body" type="JSON">
-  Optional request body to pass through to the request.
+  Optional request body to pass through to the request. <br />
+  Supports dynamic fields such as `$job`, `$state`, and `$previous` for recurring
+  jobs. Learn more about dynamic fields [here](/knowledge-base/scheduling).
 </ParamField>
 
 <ParamField body="headers" type="JSON">

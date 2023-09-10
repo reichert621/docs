@@ -1,14 +1,207 @@
 ---
 title: "Product update announcements"
-description: "Schedule a monthly product update announcement"
+description: "Schedule a weekly product update announcement"
 ---
 
 ### Overview
 
-TODO
+We can use a scheduled job to run every Monday morning to send out a product announcement email if any new release is detected.
 
-### Ensuring idempotency
+For the sake of simplicity, we're going to use the public GitHub API to check the latest published release of an open source project to demonstrate how this might work.
 
-Booper also features an option to ensure **idempotency**, meaning we can set a key that is used to enforce uniqueness.
+### Checking a project's latest release
 
-In other words, if we want to send a product update email to Jane and make sure it's only sent _once_, we could set the `idempotency_key` to some combination of Jane's unique ID with the product update version (e.g. `janes-user-id.product-update-v1.3.27`) to force any future scheduled emails with the same `idempotency_key` to be ignored.
+We can use use the following [API endpoint](https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#get-the-latest-release) to get the latest release for a project, given the GitHub `owner` and `repo` names:
+
+```
+https://api.github.com/repos/{owner}/{repo}/releases/latest
+```
+
+For this example, we're going to use Supabase's main repository: https://github.com/supabase/supabase
+
+We can see the latest release data here:
+https://api.github.com/repos/supabase/supabase/releases/latest
+
+We're going to use the `name` and `body` markdown field for our email notification, and the release `id` to reference the last notification that was sent.
+
+Here's how we could retrieve that data in TypeScript:
+
+```ts
+const fetchLatestRelease = async (owner: string, repo: string) => {
+  const url = `https://api.github.com/repos/${owner}/${repo}/releases/latest`;
+
+  return fetch(url).then((r) => r.json());
+};
+```
+
+### Triggering emails for new releases
+
+Now what we want to do is:
+
+1. Fetch the latest release of the repository using the `fetchLatestRelease` function above.
+2. Use the schedule's `state` to store the ID of last sent release, which we check against the current latest release.
+3. If the current latest release is different from the last sent release, we trigger an email to be sent out to the recipients of our choosing.
+
+Here we handle that in a [NextJS API endpoint](https://nextjs.org/docs/pages/building-your-application/routing/api-routes), using [Resend](http://resend.com/) to as our email API:
+
+```ts
+// pages/api/announcements.ts
+
+import { Resend } from "resend";
+
+export default async function handler(req, res) {
+  const { owner, repo, recipients, last_sent_release } = req.body;
+  const release = await fetchLatestRelease(owner, repo);
+
+  if (!release || !release.name || !release.body) {
+    return res.status(404).json({ error: "Not found." });
+  } else if (release.id === last_sent_release) {
+    return res.status(200).json({ message: "This release was already sent." });
+  }
+
+  // Get your free Resend API key at https://resend.com/api-keys
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  const email = await resend.sendEmail({
+    from: `${repo}@resend.dev`,
+    to: recipients,
+    subject: release.name,
+    text: release.body,
+  });
+
+  // Use the special keyword `$set` to cache the the `last_sent_release`
+  // on the schedule's state for reference in future jobs
+  return res.json({ email, $set: { last_sent_release: release.id } });
+}
+```
+
+<Info>
+  Note that in the reponse we use the special `$set` key to update the `state`
+  of the job schedule, so that we can reference the `last_sent_release` ID in
+  future jobs.
+</Info>
+
+The code above will trigger an email of plaintext/markdown, which isn't ideal. Let's use [react-email](https://github.com/resendlabs/react-email) and [react-markdown](https://github.com/remarkjs/react-markdown) to send a prettier email!
+
+### Formatting the email HTML
+
+Right now our email is just getting sent in plaintext markdown:
+
+<Frame>
+  <img src="/images/email-markdown.png" />
+</Frame>
+
+If we want to send some nicer HTML, we can use [react-markdown](https://github.com/remarkjs/react-markdown) to handle parsing the markdown to React, and [react-email](https://github.com/resendlabs/react-email) to handle rendering a React component as the email.
+
+First, let's define a React component to render our markdown email:
+
+```tsx /components/emails/MarkdownEmail.tsx
+import * as React from "react";
+import {
+  Body,
+  Container,
+  Head,
+  Heading,
+  Hr,
+  Html,
+  Img,
+  Link,
+  Tailwind,
+  Text,
+} from "@react-email/components";
+import ReactMarkdown from "react-markdown";
+
+export const MarkdownEmail = ({ markdown }: { markdown: string }) => {
+  return (
+    <Html>
+      <Head />
+      <Tailwind>
+        <Body className="mx-auto my-auto bg-white font-sans">
+          <Container className="max-w-[40em]">
+            <ReactMarkdown
+              components={{
+                // Render tags as react-email components
+                h1: ({ node, ...props }) => <Heading as="h1" {...props} />,
+                h2: ({ node, ...props }) => <Heading as="h2" {...props} />,
+                h3: ({ node, ...props }) => <Heading as="h3" {...props} />,
+                h4: ({ node, ...props }) => <Heading as="h4" {...props} />,
+                a: ({ node, ...props }) => <Link {...props} />,
+                p: ({ node, ...props }) => <Text {...props} />,
+                li: ({ node, children, ...props }) => (
+                  <li {...props}>
+                    <Text className="my-2">{children}</Text>
+                  </li>
+                ),
+                hr: ({ node, ...props }) => <Hr {...props} />,
+                img: ({ className, ...props }) => {
+                  return (
+                    <Img className={`${className} max-w-full`} {...props} />
+                  );
+                },
+              }}
+            >
+              {markdown}
+            </ReactMarkdown>
+          </Container>
+        </Body>
+      </Tailwind>
+    </Html>
+  );
+};
+
+export default MarkdownEmail;
+```
+
+Now, all we have to do is update our original route to use this component:
+
+```ts
+// pages/api/announcements.ts
+
+import { render } from "@react-email/render";
+import MarkdownEmail from "@/components/emails/MarkdownEmail";
+
+export default async function handler(req, res) {
+  // ...
+
+  const email = await resend.sendEmail({
+    from: `${repo}@resend.dev`,
+    to: recipients,
+    subject: release.name,
+    text: release.body,
+    html: render(MarkdownEmail({ markdown: release.body })),
+  });
+
+  // ...
+}
+```
+
+Now, when we trigger the email, it should look more like this:
+
+<Frame>
+  <img src="/images/email-html.png" />
+</Frame>
+
+Much better!
+
+### Creating the scheduled job
+
+Using our new API endpoint, we can schedule a job to run it every Monday at 10am using a cron expression, using the schedule `$state` to reference the last sent release ID:
+
+```bash
+# This assumes your API key is set in the current env
+# BOOPER_API_KEY=sk_...
+
+curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
+--header "Content-Type: application/json" \
+--header "Authorization: Bearer $BOOPER_API_KEY" \
+--data-raw '{
+    "method": "post",
+    "url": "https://yourdomain.com/api/announcements"
+    "body": {
+      "owner": "supabase",
+      "repo": "supabase",
+      "recipients": "me@booper.dev",
+      "last_sent_release": "$state.last_sent_release"
+    },
+    "cron": "0 10 * * MON"
+}'
+```

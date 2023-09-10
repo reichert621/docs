@@ -76,3 +76,9 @@ async function register(user) {
 </Info>
 
 This will schedule an email to be sent to `user.email` in 45 minutes after signing up.
+
+### Optional: Ensuring idempotency
+
+Booper also features an option to ensure **idempotency**, meaning we can set a key that is used to enforce uniqueness.
+
+In other words, if we want to send an email to Jane and make sure it's only sent _once_, we could set the `idempotency_key` to some combination of Jane's unique ID with the name of the email template (e.g. `jane.welcome`) to force any future scheduled emails with the same `idempotency_key` to be ignored.
