@@ -26,13 +26,25 @@ We're going to use the `name` and `body` markdown field for our email notificati
 
 Here's how we could retrieve that data in TypeScript:
 
-```ts
+<CodeGroup>
+
+```ts TypeScript
 const fetchLatestRelease = async (owner: string, repo: string) => {
   const url = `https://api.github.com/repos/${owner}/${repo}/releases/latest`;
 
   return fetch(url).then((r) => r.json());
 };
 ```
+
+```js JavaScript
+const fetchLatestRelease = async (owner, repo) => {
+  const url = `https://api.github.com/repos/${owner}/${repo}/releases/latest`;
+
+  return fetch(url).then((r) => r.json());
+};
+```
+
+</CodeGroup>
 
 ### Triggering emails for new releases
 
@@ -44,9 +56,9 @@ Now what we want to do is:
 
 Here we handle that in a [NextJS API endpoint](https://nextjs.org/docs/pages/building-your-application/routing/api-routes), using [Resend](http://resend.com/) to as our email API:
 
-```ts
-// pages/api/announcements.ts
+<CodeGroup>
 
+```ts pages/api/announcements.ts (NextJS)
 import { Resend } from "resend";
 
 export default async function handler(req, res) {
@@ -73,6 +85,41 @@ export default async function handler(req, res) {
   return res.json({ email, $set: { last_sent_release: release.id } });
 }
 ```
+
+```js app.js (NodeJS)
+import express from "express";
+import { Resend } from "resend";
+
+const app = express();
+
+app.get("/", async (req, res) => {
+  const { owner, repo, recipients, last_sent_release } = req.body;
+  const release = await fetchLatestRelease(owner, repo);
+
+  if (!release || !release.name || !release.body) {
+    return res.status(404).json({ error: "Not found." });
+  } else if (release.id === last_sent_release) {
+    return res.status(200).json({ message: "This release was already sent." });
+  }
+
+  // Get your free Resend API key at https://resend.com/api-keys
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  const email = await resend.sendEmail({
+    from: `${repo}@resend.dev`,
+    to: recipients,
+    subject: release.name,
+    text: release.body,
+  });
+
+  // Use the special keyword `$set` to cache the the `last_sent_release`
+  // on the schedule's state for reference in future jobs
+  return res.json({ email, $set: { last_sent_release: release.id } });
+});
+
+app.listen(process.env.PORT || 3000, () => console.log("Server initialized!"));
+```
+
+</CodeGroup>
 
 <Info>
   Note that in the reponse we use the special `$set` key to update the `state`
@@ -181,6 +228,66 @@ Now, when we trigger the email, it should look more like this:
 </Frame>
 
 Much better!
+
+<Accordion title="Don't want to use React? Use `marked` instead" icon="code">
+
+If we want to keep things simple, we can use the [`marked` library](https://github.com/markedjs/marked) to parse the markdown into HTML:
+
+```js
+import { marked } from "marked";
+
+// ...
+
+async function handler(req, res) {
+  // ...
+
+  const markdown = release.body;
+  const html = marked.parse(markdown);
+  const email = await resend.sendEmail({
+    // ...
+    text: markdown,
+    html: html, // pass in the `html` parameter
+  });
+
+  // ...
+}
+```
+
+Note that it may require a bit of styling to prevent images from overflowing:
+
+```js
+async function handler(req, res) {
+  // ...
+
+  // Add `max-width: 100%` when we render `img` tags
+  const parsed = marked
+    .use({
+      renderer: {
+        image(href, title, text) {
+          return [
+            `<img style="max-width: 100%;" src="${href}" alt="${text}"`,
+            title && `title="${title}"`,
+            ">",
+          ]
+            .filter(Boolean)
+            .join(" ");
+        },
+      },
+    })
+    .parse(markdown);
+
+  // Wrap the HTML in a centered container with a max-width
+  const html = `
+    <div style="max-width: 640px; margin: 40px auto;">
+      ${parsed}
+    </div>
+  `;
+
+  // ...
+}
+```
+
+</Accordion>
 
 ### Creating the scheduled job
 

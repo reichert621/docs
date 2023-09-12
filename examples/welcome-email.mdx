@@ -67,6 +67,7 @@ async function register(user) {
         "<p>Best,<br />Alex</p>",
     },
     schedule_in: [45, "minutes"],
+    idempotency_key: `${user.email}:welcome`,
   });
 }
 ```

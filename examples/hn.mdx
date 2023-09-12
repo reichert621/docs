@@ -17,7 +17,34 @@ Here's how we'll tackle it:
 
 We'll use the [Hacker News API](https://github.com/HackerNews/API) endpoints to fetch the top page stories. Here's what that function might look like:
 
-```ts
+<CodeGroup>
+
+```js JavaScript
+const get = async (url) => fetch(url).then((r) => r.json());
+
+const fetchStories = async ({ pages = 1, min = 100, exclude = [] } = {}) => {
+  const storyIds = await get(
+    `https://hacker-news.firebaseio.com/v0/topstories.json`
+  );
+
+  return Promise.all(
+    storyIds
+      // Filter out posts we've already seen
+      .filter((id) => !exclude.includes(id))
+      // Limit to the first page (30 posts per page)
+      .slice(0, pages * 30)
+      .map(async (id) => {
+        const story = await get(
+          `https://hacker-news.firebaseio.com/v0/item/${id}.json`
+        );
+
+        return story;
+      })
+  );
+};
+```
+
+```ts TypeScript
 const get = async (url: string) => fetch(url).then((r) => r.json());
 
 const fetchStories = async ({
@@ -49,6 +76,8 @@ const fetchStories = async ({
   );
 };
 ```
+
+</CodeGroup>
 
 It's basically an N+1 query, but no big deal. If we limit the results to the first page (i.e. the first 30 posts), the request is generally fast enough.
 
@@ -82,13 +111,22 @@ Here's an example of what the [output](https://www.booper.dev/api/examples/hn?pa
 
 ### Triggering a Discord alert when new posts are found
 
-First, let's define a function that sends an alert to Discord via webhook URL:
+First, let's define two helper functions:
 
-```ts
-const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
+- `format`: formats story data into Discord markdown
+- `notify`: sends an alert to Discord via webhook URL
 
-const notify = async (content: string) => {
-  return fetch(DISCORD_WEBHOOK_URL, {
+<CodeGroup>
+
+```js JavaScript
+const format = (results) => {
+  return results
+    .map((p) => `[${p.score} points] [${p.title}](${p.url})`)
+    .join("\n");
+};
+
+const notify = async (content, webhook = process.env.DISCORD_WEBHOOK_URL) => {
+  return fetch(webhook, {
     headers: { "content-type": "application/json" },
     method: "POST",
     body: JSON.stringify({ content }),
@@ -96,19 +134,33 @@ const notify = async (content: string) => {
 };
 ```
 
-Now, the simplest thing we can do is just send an alert to Discord whenever we find posts that meet the minimum score requirement set in the request body.
+```ts TypeScript
+type Post = { id: number; score: number; title: string; url: string };
 
-Here we handle that in a [NextJS API endpoint](https://nextjs.org/docs/pages/building-your-application/routing/api-routes):
-
-```ts
-// pages/api/hn.ts
-
-const format = (results) => {
+const format = (results: Post[]) => {
   return results
     .map((p) => `[${p.score} points] [${p.title}](${p.url})`)
     .join("\n");
 };
 
+const notify = async (content: string, webhook = DISCORD_WEBHOOK_URL) => {
+  return fetch(webhook, {
+    headers: { "content-type": "application/json" },
+    method: "POST",
+    body: JSON.stringify({ content }),
+  });
+};
+```
+
+</CodeGroup>
+
+Now, the simplest thing we can do is just send an alert to Discord whenever we find posts that meet the minimum score requirement set in the request body.
+
+Here we handle that in a [NextJS API endpoint](https://nextjs.org/docs/pages/building-your-application/routing/api-routes):
+
+<CodeGroup>
+
+```ts pages/api/hn.ts (NextJS)
 export default async function handler(req, res) {
   const { min = 100, pages = 1 } = req.body;
   const stories = await fetchStories({ pages });
@@ -117,13 +169,38 @@ export default async function handler(req, res) {
   const results = stories.filter((s) => s.score >= min);
 
   if (results.length > 0) {
-    // Send notification to Discord
+    // Send notification to Discord using the helpers defined above
     await notify(format(results));
   }
 
   return res.status(200).json({ results });
 }
 ```
+
+```js app.js (NodeJS)
+import express from "express";
+
+const app = express();
+
+app.get("/", async (req, res) => {
+  const { min = 100, pages = 1 } = req.body;
+  const stories = await fetchStories({ pages });
+  // After we fetch the stories, we filter out the ones that
+  // don't have the minimum score specified in the request body
+  const results = stories.filter((s) => s.score >= min);
+
+  if (results.length > 0) {
+    // Send notification to Discord using the helpers defined above
+    await notify(format(results));
+  }
+
+  return res.status(200).json({ results });
+});
+
+app.listen(process.env.PORT || 3000, () => console.log("Server initialized!"));
+```
+
+</CodeGroup>
 
 This is fine if we run the script every hour or two, and don't mind seeing repeated links. But what if we want to avoid sending duplicates?
 
