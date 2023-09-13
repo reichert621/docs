@@ -1,6 +1,6 @@
 ---
 title: "Product update announcements"
-description: "Schedule a weekly product update announcement"
+description: "Schedule product update announcement emails"
 ---
 
 ### Overview
@@ -8,6 +8,35 @@ description: "Schedule a weekly product update announcement"
 We can use a scheduled job to run every Monday morning to send out a product announcement email if any new release is detected.
 
 For the sake of simplicity, we're going to use the public GitHub API to check the latest published release of an open source project to demonstrate how this might work.
+
+<Accordion title="Just show me the code">
+
+See the finished code on [Replit](https://replit.com/@reichertjalex/product-update).
+
+You can even use the Replit URL to run your job, as long as the Repl is running. Make sure to replace `YOUR_EMAIL_ADDRESS` with a valid email address and `YOUR_RESEND_API_KEY` with your [Resend API key](https://resend.com/api-keys), and then you can run the following in your terminal:
+
+```bash
+# This assumes your API key is set in the current env
+# BOOPER_API_KEY=sk_...
+
+curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
+--header "Content-Type: application/json" \
+--header "Authorization: Bearer $BOOPER_API_KEY" \
+--data-raw '{
+    "method": "post",
+    "url": "https://product-update.reichertjalex.repl.co/api/run",
+    "body": {
+      "owner": "supabase",
+      "repo": "supabase",
+      "recipient": YOUR_EMAIL_ADDRESS,
+      "resend_api_key": YOUR_RESEND_API_KEY,
+      "last_sent_release": "$state.last_sent_release"
+    },
+    "cron": "0 10 * * MON"
+}'
+```
+
+</Accordion>
 
 ### Checking a project's latest release
 
@@ -302,7 +331,7 @@ curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
 --header "Authorization: Bearer $BOOPER_API_KEY" \
 --data-raw '{
     "method": "post",
-    "url": "https://yourdomain.com/api/announcements"
+    "url": "https://yourdomain.com/api/announcements",
     "body": {
       "owner": "supabase",
       "repo": "supabase",

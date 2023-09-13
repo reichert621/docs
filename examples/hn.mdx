@@ -13,6 +13,33 @@ Here's how we'll tackle it:
 2. Set up a notification to be sent to Discord whenever a new post is found
 3. Configure the schedule so that it "remembers" which posts have already been sent through
 
+<Accordion title="Just show me the code">
+
+See the finished code on [Replit](https://replit.com/@reichertjalex/hn).
+
+You can even use the Replit URL to run your job, as long as the Repl is running. Make sure to replace `YOUR_DISCORD_WEBHOOK_URL` with your [Discord webhook URL](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks), and then you can run the following in your terminal:
+
+```bash
+# This assumes your API key is set in the current env
+# BOOPER_API_KEY=sk_...
+
+curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
+--header "Content-Type: application/json" \
+--header "Authorization: Bearer $BOOPER_API_KEY" \
+--data-raw '{
+    "method": "post",
+    "url": "https://hn.reichertjalex.repl.co/api/run",
+    "body": {
+      "min": 200,
+      "webhook": YOUR_DISCORD_WEBHOOK_URL,
+      "exclude": "$previous.sent"
+    },
+    "repeat_every": [1, "hour"]
+}'
+```
+
+</Accordion>
+
 ### Fetching top stories from HN
 
 We'll use the [Hacker News API](https://github.com/HackerNews/API) endpoints to fetch the top page stories. Here's what that function might look like:
