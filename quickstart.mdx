@@ -22,7 +22,7 @@ The easiest way to do this is to copy and paste the following cURL request into 
 Note that in the request body (in `--data-raw`) we simply define the HTTP `method`, `url`, `body`, and set it to run in 30 seconds with the `schedule_in` parameter:
 
 ```bash
-BOOPER_PUBLIC_API_KEY='sk_opKm2rU3q547qO1L8s3PLmfOO_uGZ3cNEO_p7O5S32Q'
+BOOPER_PUBLIC_API_KEY='sk_public_t5SQsliGDS0BNtbtNgUC-QwvweMLJ7ac'
 
 curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
 --header "Content-Type: application/json" \
@@ -74,7 +74,7 @@ Then, in your server code:
 ```typescript
 import Scheduler from "@booper/scheduler";
 
-const BOOPER_API_KEY = "sk_opKm2rU3q547qO1L8s3PLmfOO_uGZ3cNEO_p7O5S32Q";
+const BOOPER_API_KEY = "sk_public_t5SQsliGDS0BNtbtNgUC-QwvweMLJ7ac";
 const scheduler = new Scheduler({ apiKey: BOOPER_API_KEY });
 
 (async () => {
@@ -104,7 +104,7 @@ Once again, the easiest way to do this is to copy and paste the following cURL r
 The main difference with the section above is that we now add the `repeat_every` field set to `[5, 'minutes']`:
 
 ```bash
-BOOPER_PUBLIC_API_KEY='sk_opKm2rU3q547qO1L8s3PLmfOO_uGZ3cNEO_p7O5S32Q'
+BOOPER_PUBLIC_API_KEY='sk_public_t5SQsliGDS0BNtbtNgUC-QwvweMLJ7ac'
 
 curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
 --header "Content-Type: application/json" \
@@ -158,7 +158,7 @@ Then, in your server code, make sure to set the `repeat_every` field:
 ```typescript
 import Scheduler from "@booper/scheduler";
 
-const BOOPER_API_KEY = "sk_opKm2rU3q547qO1L8s3PLmfOO_uGZ3cNEO_p7O5S32Q";
+const BOOPER_API_KEY = "sk_public_t5SQsliGDS0BNtbtNgUC-QwvweMLJ7ac";
 const scheduler = new Scheduler({ apiKey: BOOPER_API_KEY });
 
 (async () => {
