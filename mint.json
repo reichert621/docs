@@ -52,10 +52,11 @@
           "group": "Examples",
           "pages": [
             "examples/introduction",
-            "examples/daily-standup",
             "examples/hn",
             "examples/welcome-email",
-            "examples/product-update"
+            "examples/product-update",
+            "examples/pg-newsletter",
+            "examples/daily-standup"
           ]
         }
       ]

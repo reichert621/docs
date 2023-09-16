@@ -121,7 +121,9 @@ import { Resend } from "resend";
 
 const app = express();
 
-app.get("/", async (req, res) => {
+app.use(express.json());
+
+app.post("/api/announcements", async (req, res) => {
   const { owner, repo, recipients, last_sent_release } = req.body;
   const release = await fetchLatestRelease(owner, repo);
 
