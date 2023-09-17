@@ -56,8 +56,7 @@
             "examples/welcome-email",
             "examples/product-update",
             "examples/pg-newsletter",
-            "examples/daily-standup",
-            "examples/discord-bot"
+            "examples/daily-standup"
           ]
         }
       ]
