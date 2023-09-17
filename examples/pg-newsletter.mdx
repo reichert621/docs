@@ -69,7 +69,7 @@ Here's what the output of that might look like:
 - As text: https://pg.reichertjalex.repl.co/api/demo?format=text
 - As HTML: https://pg.reichertjalex.repl.co/api/demo?format=html
 
-### Triggering a Discord alert when new posts are found
+### Triggering an email with the essay
 
 First, let's define a helper function to pick a random essay:
 
@@ -160,8 +160,6 @@ app.listen(process.env.PORT || 3000, () => console.log("Server initialized!"));
 ```
 
 </CodeGroup>
-
-You may have noticed that we added a special key to our response body: `$set`
 
 ### Keeping track of alert history
 

@@ -1,0 +1,176 @@
+---
+title: "Message scheduler bot"
+description: "Send scheduled messages in Discord with a custom bot"
+---
+
+### Overview
+
+We're going to create a simple Discord bot that allows users to schedule messages to be sent at future times.
+
+<Accordion title="Just show me the code">
+
+See the finished code on [Replit](https://replit.com/@reichertjalex/discord-bot).
+
+TODO: include link to install Discord bot
+
+</Accordion>
+
+### Setting up the bot
+
+TODO: add description
+
+```js
+import { Client, Events } from "discord.js";
+
+const client = new Client({ intents: [] });
+
+client.once(Events.ClientReady, () => {
+  console.log(`Logged in as ${client.user?.tag}!`);
+});
+
+const run = async () => {
+  // Initialize Discord bot
+  await client.login(process.env.DISCORD_TOKEN);
+};
+
+run().catch((err) => console.error("Failed to start bot:", err));
+```
+
+### Handling custom commands
+
+TODO: add description
+
+```js
+import { Client, Events, SlashCommandBuilder, Routes, REST } from "discord.js";
+
+const client = new Client({ intents: [] });
+
+client.once(Events.ClientReady, () => {
+  console.log(`Logged in as ${client.user?.tag}!`);
+});
+
+// Add this for handling commands or "interactions"
+client.on(Events.InteractionCreate, async (interaction) => {
+  // Handle `/ping` command
+  if (interaction.isChatInputCommand() && interaction.commandName === "ping") {
+    await interaction.reply({ content: "Pong!", ephemeral: true });
+  }
+});
+
+const register = async (commands) => {
+  const API = new REST({ version: "10" }).setToken(process.env.DISCORD_TOKEN);
+
+  return API.put(Routes.applicationCommands(process.env.DISCORD_CLIENT_ID), {
+    body: commands,
+  });
+};
+
+const run = async () => {
+  // Register `/ping` command for testing
+  await register([
+    new SlashCommandBuilder()
+      .setName("ping")
+      .setDescription("Tests that the bot is running.")
+      .toJSON(),
+  ]);
+  // Initialize Discord bot
+  await client.login(process.env.DISCORD_TOKEN);
+};
+
+run().catch((err) => console.error("Failed to start bot:", err));
+```
+
+### Creating the `schedule` command
+
+TODO: add description
+
+```js
+import { Client, Events, SlashCommandBuilder, Routes, REST } from "discord.js";
+// Import the Booper scheduler package
+import { Scheduler } from "@booper/scheduler";
+
+// Initialize with your API key
+const scheduler = new Scheduler({ apiKey: process.env.BOOPER_API_KEY });
+const client = new Client({ intents: [] });
+
+client.once(Events.ClientReady, () => {
+  console.log(`Logged in as ${client.user?.tag}!`);
+});
+
+client.on(Events.InteractionCreate, async (interaction) => {
+  // Handle `/schedule` command
+  if (
+    interaction.isChatInputCommand() &&
+    interaction.commandName === "schedule"
+  ) {
+    const { channelId, options } = interaction;
+    const message = options.getString("message");
+    const [n, u] = options.getString("in")?.split(" ") ?? [];
+    const num = Number(n);
+    const unit = u.toLowerCase();
+    const isValidNum = !!num && num > 0;
+    const isValidTimeUnit = [
+      "second",
+      "seconds",
+      "minute",
+      "minutes",
+      "hour",
+      "hours",
+      "day",
+      "days",
+      "week",
+      "weeks",
+    ].includes(unit);
+
+    if (!isValidNum || !isValidTimeUnit) {
+      await interaction.reply({
+        content: "Please enter a valid number followed by a valid time unit.",
+        ephemeral: true,
+      });
+      return;
+    }
+
+    const response = await scheduler.jobs.create({
+      method: "post",
+      url: `https://discord.com/api/v10/channels/${channelId}/messages`,
+      headers: { Authorization: `Bot ${process.env.DISCORD_TOKEN}` },
+      body: { content: message },
+      schedule_in: [num, unit],
+    });
+    console.log("Successfully scheduled job:", response);
+
+    await interaction.reply({
+      content: `Message \`${message}\` will be sent in approximately \`${num} ${unit}\``,
+      ephemeral: true,
+    });
+  }
+});
+
+const register = async (commands) => {...}
+
+const run = async () => {
+  // Register `/schedule` command
+  await register([
+    new SlashCommandBuilder()
+      .setName("schedule")
+      .setDescription("Schedules a message to be sent out at a future time.")
+      .addStringOption((option) =>
+        option
+          .setName("message")
+          .setDescription("The message to schedule")
+          .setRequired(true)
+      )
+      .addStringOption((option) =>
+        option
+          .setName("in")
+          .setDescription("How long to wait before sending")
+          .setRequired(true)
+      )
+      .toJSON(),
+  ]);
+  // Initialize Discord bot
+  await client.login(process.env.DISCORD_TOKEN);
+};
+
+run().catch((err) => console.error("Failed to start bot:", err));
+```
