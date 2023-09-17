@@ -163,8 +163,6 @@ app.listen(process.env.PORT || 3000, () => console.log("Server initialized!"));
 
 ### Keeping track of alert history
 
-There are two ways we can keep track of which posts have been sent out already.
-
 When you create a job on a schedule, the scheduler will pass in some [metadata](/link-to-job-metadata) into the body of each request. Included in the metadata is the schedule's `state`, which can be accessed at `req.body.$state` and set or updated in the response.
 
 Let's modify the API handler to take advantage of `$state`:
