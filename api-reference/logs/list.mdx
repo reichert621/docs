@@ -43,27 +43,25 @@ curl 'https://scheduler.booper.dev/api/logs' \
 {
   "data": [
     {
-      "id": "67a64bd8-f4d7-43bf-9ce5-6ba12f03665e",
-      "name": null,
-      "description": null,
-      "inserted_at": "2023-08-27T02:11:19",
-      "started_at": null,
-      "disabled_at": "2023-08-27T23:27:23Z",
-      "user_id": "bd2aa099-6eb7-4dbb-9178-32141def1355"
-      "frequency": {
-        "repeat_every": [2, "minutes"]
-      },
-      "args": {
+      "event": "worker.http.request",
+      "id": "1d2a2d2d-302c-4fd7-a282-6eeabdf02726",
+      "inserted_at": "2023-09-21T18:02:46.697398Z",
+      "job_id": 73496,
+      "payload": {
         "body": {
-          "channel": "toast",
-          "content": "Hello world!"
+          "$job": {
+            "id": 73496
+          },
+          "$previous": {},
+          "$state": {},
+          "author": "Demo user",
+          "content": "Hello!"
         },
         "headers": {},
-        "method": "post",
-        "repeat_every": [2, "minutes"],
-        "schedule_in": [30, "seconds"],
-        "url": "https://scheduler.booper.dev/api/broadcast"
-      }
+        "query": {},
+        "url": "https://scheduler.booper.dev/api/channels/demo"
+      },
+      "user_id": "a89376ec-cea3-436e-bc16-35f4da2537c6"
     }
   ]
 }

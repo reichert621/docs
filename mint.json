@@ -79,12 +79,14 @@
       "pages": [
         "api-reference/schedules/list",
         "api-reference/schedules/get",
+        "api-reference/schedules/disable",
+        "api-reference/schedules/enable",
         "api-reference/schedules/delete"
       ]
     },
     {
       "group": "Logs",
-      "pages": ["api-reference/logs/list"]
+      "pages": ["api-reference/logs/list", "api-reference/logs/get"]
     },
     {
       "group": "Miscellaneous",

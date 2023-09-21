@@ -1,0 +1,60 @@
+---
+title: "Get Log"
+api: "GET https://scheduler.booper.dev/api/logs/{log_id}"
+description: "This endpoint retrieves a job log"
+---
+
+### Path
+
+<ParamField path="log_id" type="string" required>
+  The log ID.
+</ParamField>
+
+### Headers
+
+<ParamField
+  header="Authorization"
+  type="string"
+  initialValue="Bearer sk_public_t5SQsliGDS0BNtbtNgUC-QwvweMLJ7ac"
+>
+  API key
+</ParamField>
+
+<RequestExample>
+
+```bash Example Request
+curl 'https://scheduler.booper.dev/api/logs/1d2a2d2d-302c-4fd7-a282-6eeabdf02726' \
+--header 'Authorization: Bearer sk_public_t5SQsliGDS0BNtbtNgUC-QwvweMLJ7ac'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Response
+{
+  "data": {
+    "event": "worker.http.request",
+    "id": "1d2a2d2d-302c-4fd7-a282-6eeabdf02726",
+    "inserted_at": "2023-09-21T18:02:46.697398Z",
+    "job_id": 73496,
+    "payload": {
+      "body": {
+        "$job": {
+          "id": 73496
+        },
+        "$previous": {},
+        "$state": {},
+        "author": "Demo user",
+        "content": "Hello!"
+      },
+      "headers": {},
+      "query": {},
+      "url": "https://scheduler.booper.dev/api/channels/demo"
+    },
+    "user_id": "a89376ec-cea3-436e-bc16-35f4da2537c6"
+  }
+}
+```
+
+</ResponseExample>
