@@ -1,6 +1,6 @@
 ---
 title: "Cancel Job"
-api: "DELETE https://scheduler.booper.dev/api/jobs/{job_id}"
+api: "POST https://scheduler.booper.dev/api/jobs/{job_id}/cancel"
 description: "This endpoint cancels a user job"
 ---
 
@@ -23,7 +23,7 @@ description: "This endpoint cancels a user job"
 <RequestExample>
 
 ```bash Example Request
-curl --location --request DELETE 'https://scheduler.booper.dev/api/jobs/29180' \
+curl --location --request POST 'https://scheduler.booper.dev/api/jobs/29180/cancel' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Token <token>'
 ```
