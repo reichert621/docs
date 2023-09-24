@@ -22,10 +22,14 @@ description: "This endpoint disables a job schedule"
 
 <RequestExample>
 
-```bash Example Request
-curl --location --request POST 'https://scheduler.booper.dev/api/schedules/67a64bd8-f4d7-43bf-9ce5-6ba12f03665e/disable' \
+```bash cURL
+curl --location --request POST 'https://scheduler.booper.dev/api/schedules/be930087-25b6-4227-ac9e-57048ba3bda0/disable' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Token <token>'
+```
+
+```bash CLI
+npx @booper/cli schedules disable be930087-25b6-4227-ac9e-57048ba3bda0
 ```
 
 </RequestExample>
