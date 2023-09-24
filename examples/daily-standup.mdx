@@ -12,7 +12,9 @@ We can set up a daily standup alert in 2 easy steps:
 
 <Accordion title="Just show me the code">
 
-```bash
+<CodeGroup>
+
+```bash cURL
 # This assumes your API key and webhook URL are set in the current env:
 # BOOPER_API_KEY=sk_...
 # DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
@@ -25,6 +27,18 @@ curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
 --data-raw "body[content]=Time for standup! What are you working on today?" \
 --data-raw "cron=0 9 * * 1-5"
 ```
+
+```bash CLI
+# Assumes your webhook URL is set in the current env:
+# DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
+
+npx @booper/cli run \
+  POST $DISCORD_WEBHOOK_URL \
+  --data 'content=Time for standup! What are you working on today?' \
+  --cron '0 9 * * 1-5'
+```
+
+</CodeGroup>
 
 </Accordion>
 

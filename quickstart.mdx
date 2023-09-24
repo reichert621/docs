@@ -15,13 +15,15 @@ Let's start by creating a job that sends a message to the Booper [Discord](https
 
 It will do this by scheduling a `POST` request to `https://scheduler.booper.dev/api/broadcast` with the `channel` field of the request body set to `"discord"`, and the `content` field set to whatever message we want to broadcast.
 
-### Using cURL
+### In the terminal
 
 The easiest way to do this is to copy and paste the following cURL request into your terminal.
 
 Note that in the request body (in `--data-raw`) we simply define the HTTP `method`, `url`, `body`, and set it to run in 30 seconds with the `schedule_in` parameter:
 
-```bash
+<CodeGroup>
+
+```bash cURL
 BOOPER_PUBLIC_API_KEY='sk_public_t5SQsliGDS0BNtbtNgUC-QwvweMLJ7ac'
 
 curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
@@ -34,6 +36,16 @@ curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
     "schedule_in": [30, "seconds"]
 }'
 ```
+
+```bash CLI
+npx @booper/cli run \
+  POST https://scheduler.booper.dev/api/broadcast \
+  --data 'content=Just getting started!' \
+  --data 'channel=discord' \
+  --in '30 seconds'
+```
+
+</CodeGroup>
 
 <Info>
   Note that the request above is using our [public API
@@ -97,13 +109,15 @@ A recurring job is simply one that repeats at a set interval after executing for
 
 Let's just create a job that pings the Booper API every 5 minutes after its initial run. It will do this by scheduling a `GET` request to `https://scheduler.booper.dev/api/ping`.
 
-### Using cURL
+### In the terminal
 
 Once again, the easiest way to do this is to copy and paste the following cURL request into your terminal.
 
 The main difference with the section above is that we now add the `repeat_every` field set to `[5, 'minutes']`:
 
-```bash
+<CodeGroup>
+
+```bash cURL
 BOOPER_PUBLIC_API_KEY='sk_public_t5SQsliGDS0BNtbtNgUC-QwvweMLJ7ac'
 
 curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
@@ -116,6 +130,15 @@ curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
     "repeat_every": [5, "minutes"]
 }'
 ```
+
+```bash CLI
+npx @booper/cli run \
+  GET https://scheduler.booper.dev/api/ping \
+  --in '10 seconds' \
+  --every '5 minutes'
+```
+
+</CodeGroup>
 
 <Info>
   Note that the request above is using our [public API

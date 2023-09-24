@@ -80,7 +80,7 @@ description: "This endpoint creates a new job"
 
 <RequestExample>
 
-```bash Example Request
+```bash cURL
 curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer sk_public_t5SQsliGDS0BNtbtNgUC-QwvweMLJ7ac' \
@@ -90,6 +90,14 @@ curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
     "body": {"content": "Testing 123", "channel": "discord"},
     "schedule_in": [30, "seconds"]
 }'
+```
+
+```bash CLI
+npx @booper/cli run \
+  POST https://scheduler.booper.dev/api/broadcast \
+  --data 'content=Testing 123' \
+  --data 'channel=discord' \
+  --in '30 seconds'
 ```
 
 </RequestExample>
