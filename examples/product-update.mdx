@@ -15,7 +15,7 @@ See the finished code on [Replit](https://replit.com/@reichertjalex/product-upda
 
 You can even use the Replit URL to run your job, as long as the Repl is running. Make sure to replace `YOUR_EMAIL_ADDRESS` with a valid email address and `YOUR_RESEND_API_KEY` with your [Resend API key](https://resend.com/api-keys), and then you can run the following in your terminal:
 
-```bash
+```bash cURL
 # This assumes your API key is set in the current env
 # BOOPER_API_KEY=sk_...
 
@@ -34,6 +34,17 @@ curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
     },
     "cron": "0 10 * * MON"
 }'
+```
+
+```bash CLI
+npx @booper/cli run \
+  POST https://product-update.reichertjalex.repl.co/api/run \
+  --data 'owner=supabase'
+  --data 'repo=supabase'
+  --data "recipient=$YOUR_EMAIL_ADDRESS" \
+  --data "resend_api_key=$YOUR_RESEND_API_KEY" \
+  --data 'last_sent_release=$state.last_sent_release' \
+  --cron '0 10 * * MON'
 ```
 
 </Accordion>
@@ -324,7 +335,9 @@ async function handler(req, res) {
 
 Using our new API endpoint, we can schedule a job to run it every Monday at 10am using a cron expression, using the schedule `$state` to reference the last sent release ID:
 
-```bash
+<CodeGroup>
+
+```bash cURL
 # This assumes your API key is set in the current env
 # BOOPER_API_KEY=sk_...
 
@@ -343,3 +356,15 @@ curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
     "cron": "0 10 * * MON"
 }'
 ```
+
+```bash CLI
+npx @booper/cli run \
+  POST https://yourdomain.com/api/announcements \
+  --data 'owner=supabase'
+  --data 'repo=supabase'
+  --data "recipient=$YOUR_EMAIL_ADDRESS" \
+  --data 'last_sent_release=$state.last_sent_release' \
+  --cron '0 10 * * MON'
+```
+
+</CodeGroup>

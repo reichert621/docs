@@ -19,7 +19,9 @@ See the finished code on [Replit](https://replit.com/@reichertjalex/hn).
 
 You can even use the Replit URL to run your job, as long as the Repl is running. Make sure to replace `YOUR_DISCORD_WEBHOOK_URL` with your [Discord webhook URL](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks), and then you can run the following in your terminal:
 
-```bash
+<CodeGroup>
+
+```bash cURL
 # This assumes your API key is set in the current env
 # BOOPER_API_KEY=sk_...
 
@@ -37,6 +39,20 @@ curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
     "repeat_every": [1, "hour"]
 }'
 ```
+
+```bash CLI
+# Assumes your webhook URL is set in the current env:
+# DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
+
+npx @booper/cli run \
+  POST https://hn.reichertjalex.repl.co/api/run \
+  --data 'min=200' \
+  --data "webhook=$DISCORD_WEBHOOK_URL" \
+  --data 'exclude=$previous.sent' \
+  --every '1 hour'
+```
+
+</CodeGroup>
 
 </Accordion>
 
@@ -290,7 +306,9 @@ const exclude = req.body.exclude || [];
 
 Now, assuming you've deployed your API endpoint to `https://yourdomain.com/api/hn`, you can create your scheduled job by running the following script in your terminal with your `BOOPER_API_KEY` set, and the `url` modified to the appropriate domain:
 
-```bash
+<CodeGroup>
+
+```bash cURL
 # This assumes your API key is set in the current env
 # BOOPER_API_KEY=sk_...
 
@@ -304,6 +322,16 @@ curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
     "repeat_every": [1, "hour"]
 }'
 ```
+
+```bash CLI
+npx @booper/cli run \
+  POST https://yourdomain.com/api/hn \
+  --data 'min=200' \
+  --data 'exclude=$previous.sent' \
+  --every '1 hour'
+```
+
+</CodeGroup>
 
 </Accordion>
 
@@ -362,7 +390,9 @@ const exclude = req.body.exclude || [];
 
 Now, assuming you've deployed your API endpoint to `https://yourdomain.com/api/hn`, you can create your scheduled job by running the following script in your terminal with your `BOOPER_API_KEY` set, and the `url` modified to the appropriate domain:
 
-```bash
+<CodeGroup>
+
+```bash cURL
 # This assumes your API key is set in the current env
 # BOOPER_API_KEY=sk_...
 
@@ -376,5 +406,15 @@ curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
     "repeat_every": [1, "hour"]
 }'
 ```
+
+```bash CLI
+npx @booper/cli run \
+  POST https://yourdomain.com/api/hn \
+  --data 'min=200' \
+  --data 'exclude=$state.sent' \
+  --every '1 hour'
+```
+
+</CodeGroup>
 
 </Accordion>

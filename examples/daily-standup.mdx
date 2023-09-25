@@ -77,7 +77,9 @@ Assuming you have your `BOOPER_API_KEY` and `DISCORD_WEBHOOK_URL` set in your en
 
 (Get your personal API key [here](https://www.booper.dev/api-keys), or use our [public API key](https://www.booper.dev/g/home) if you just want to test it out quickly.)
 
-```bash
+<CodeGroup>
+
+```bash cURL
 # This assumes your API key and webhook URL are set in the current env
 # BOOPER_API_KEY=sk_...
 # DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
@@ -91,9 +93,23 @@ curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
 --data-raw "cron=0 9 * * 1-5"
 ```
 
+```bash CLI
+# Assumes your webhook URL is set in the current env:
+# DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
+
+npx @booper/cli run \
+  POST $DISCORD_WEBHOOK_URL \
+  --data 'content=Time for standup! What are you working on today?' \
+  --cron '0 9 * * 1-5'
+```
+
+</CodeGroup>
+
 If you're not using environment variables, you can run this script using the public API key and public Discord webhook URL from above:
 
-```bash
+<CodeGroup>
+
+```bash cURL
 curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
 --header "Content-Type: application/json" \
 --header "Authorization: Bearer sk_public_t5SQsliGDS0BNtbtNgUC-QwvweMLJ7ac" \
@@ -103,8 +119,16 @@ curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
     "body": {"content": "Time for standup! What are you working on today?"},
     "cron": "0 9 * * 1-5"
 }'
-
 ```
+
+```bash CLI
+npx @booper/cli run \
+  POST https://discord.com/api/webhooks/1147917553176412232/A6_FKaVh2Bxme7uj5wDnh40k-cOedEswWaWve0PJZKzAnjzUoa-2PYyBKm9D7SXq1Cyk \
+  --data 'content=Time for standup! What are you working on today?' \
+  --cron '0 9 * * 1-5'
+```
+
+</CodeGroup>
 
 (If you run the script above, you can check that it scheduled something on the [jobs page](https://www.booper.dev/g/jobs?q=2PYyBKm9D7SXq1Cyk) of the public dashboard.)
 
