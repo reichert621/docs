@@ -24,7 +24,7 @@ Note that in the request body (in `--data-raw`) we simply define the HTTP `metho
 <CodeGroup>
 
 ```bash cURL
-BOOPER_PUBLIC_API_KEY='sk_public_t5SQsliGDS0BNtbtNgUC-QwvweMLJ7ac'
+BOOPER_PUBLIC_API_KEY='sk_public_20230921'
 
 curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
 --header "Content-Type: application/json" \
@@ -86,7 +86,7 @@ Then, in your server code:
 ```typescript
 import Scheduler from "@booper/scheduler";
 
-const BOOPER_API_KEY = "sk_public_t5SQsliGDS0BNtbtNgUC-QwvweMLJ7ac";
+const BOOPER_API_KEY = "sk_public_20230921";
 const scheduler = new Scheduler({ apiKey: BOOPER_API_KEY });
 
 (async () => {
@@ -118,7 +118,7 @@ The main difference with the section above is that we now add the `repeat_every`
 <CodeGroup>
 
 ```bash cURL
-BOOPER_PUBLIC_API_KEY='sk_public_t5SQsliGDS0BNtbtNgUC-QwvweMLJ7ac'
+BOOPER_PUBLIC_API_KEY='sk_public_20230921'
 
 curl --location --request POST 'https://scheduler.booper.dev/api/jobs' \
 --header "Content-Type: application/json" \
@@ -181,7 +181,7 @@ Then, in your server code, make sure to set the `repeat_every` field:
 ```typescript
 import Scheduler from "@booper/scheduler";
 
-const BOOPER_API_KEY = "sk_public_t5SQsliGDS0BNtbtNgUC-QwvweMLJ7ac";
+const BOOPER_API_KEY = "sk_public_20230921";
 const scheduler = new Scheduler({ apiKey: BOOPER_API_KEY });
 
 (async () => {
